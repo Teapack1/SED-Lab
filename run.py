@@ -9,12 +9,13 @@ MODEL_PATH = os.path.join("model", "model.keras")
 LABELER_PATH = os.path.join("model", "label_encoder.joblib")
 
 # Recording parameters
-AUDIO_CHUNK = 0.4 # seconds
-LISTENING_HOP_LENGTH = 0.4 # seconds
+AUDIO_CHUNK = 0.4  # seconds
+LISTENING_HOP_LENGTH = 0.4  # seconds
 NUM_CHANNELS = 1
 SAMPLE_RATE = 44100
 
 # Extracting features
+DATA_RANGE = 1  # 1 or 255
 MEL_FRAMES = 35
 N_MELS = 256
 NFFT = 2048
@@ -92,8 +93,8 @@ async def main_async():
     parser.add_argument(
         "--trigger_words",
         nargs="+",
-        default=["cheers"],  # Default trigger words
-        help="List of words that will trigger the action"
+        default=["cheers2"],  # Default trigger words
+        help="List of words that will trigger the action",
     )
     parser.add_argument(
         "--artnet_channel",
@@ -112,6 +113,12 @@ async def main_async():
         type=str,
         default=ARTNET_IP,
         help="Path to the trained model file",
+    )
+    parser.add_argument(
+        "--data_range",
+        type=int,
+        default=DATA_RANGE,
+        help="Number of samples between successive FFT windows",
     )
 
     args = parser.parse_args()
@@ -134,14 +141,19 @@ async def main_async():
         "artnet_channel": args.artnet_channel,
         "artnet_universe": args.artnet_universe,
         "artnet_ip": args.artnet_ip,
+        "data_range": args.data_range,
     }
 
     service = SoundClassificationService.get_instance(config)
     await service.async_init()
-    await service.listen_and_predict(duration=args.audio_chunk, overlap=args.listening_hop_length)
+    await service.listen_and_predict(
+        duration=args.audio_chunk, overlap=args.listening_hop_length
+    )
+
 
 def main():
     asyncio.run(main_async())
+
 
 if __name__ == "__main__":
     main()

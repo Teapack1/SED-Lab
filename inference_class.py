@@ -23,6 +23,7 @@ class SoundClassificationService:
             fmax=config["fmax"],
             n_fft=config["n_fft"],
             hop_length=config["hop_length"],
+            data_range=config["data_range"],
         )
 
         self.artnet_node = None
@@ -52,55 +53,69 @@ class SoundClassificationService:
         return cls._instance
 
     async def listen_and_predict(self, duration=1.0, overlap=0.5):
-            """Listen to live audio and make predictions."""
-            sample_rate = self.config["sample_rate"]
-            buffer_length = int(sample_rate * duration)
-            hop_length = int(sample_rate * overlap)
-            buffer = np.zeros(buffer_length)
+        """Listen to live audio and make predictions."""
+        sample_rate = self.config["sample_rate"]
+        buffer_length = int(sample_rate * duration)
+        hop_length = int(sample_rate * overlap)
+        buffer = np.zeros(buffer_length)
 
-            with sd.InputStream(samplerate=sample_rate,
-                                device=self.microphone_index,
-                                channels=self.config["num_channels"]) as stream:
-                print("Listening... Press Ctrl+C to stop.")
-                while True:
-                    try:
-                        # Read the first chunk to fill the buffer
-                        audio_chunk, _ = stream.read(buffer_length)
-                        buffer = audio_chunk.flatten()
+        with sd.InputStream(
+            samplerate=sample_rate,
+            device=self.microphone_index,
+            channels=self.config["num_channels"],
+        ) as stream:
+            print("Listening... Press Ctrl+C to stop.")
+            while True:
+                try:
+                    # Read the first chunk to fill the buffer
+                    audio_chunk, _ = stream.read(buffer_length)
+                    buffer = audio_chunk.flatten()
 
-                        while True:
-                            # Process the buffer
-                            prediction_feature = self.audio_processor(buffer)
-                            reshaped_feature = prediction_feature.reshape(
-                                1, self.config["mel_frames"], self.config["num_mels"], self.config["num_channels"]
+                    while True:
+                        # Process the buffer
+                        prediction_feature = self.audio_processor(
+                            data=buffer, data_range=self.config["data_range"]
+                        )
+                        reshaped_feature = prediction_feature.reshape(
+                            1,
+                            self.config["mel_frames"],
+                            self.config["num_mels"],
+                            self.config["num_channels"],
+                        )
+                        prediction = self.model.predict(reshaped_feature)
+                        keyword = self.idx2label(prediction, self.labels_encoder)
+                        if keyword:
+                            print(
+                                f"Predicted Keyword: {keyword}, with: {prediction * 100}"
                             )
-                            prediction = self.model.predict(reshaped_feature)
-                            keyword = self.idx2label(prediction, self.labels_encoder)
-                            if keyword:
-                                print(f"Predicted Keyword: {keyword}, with: {prediction * 100}")
 
-                            # Art-Net trigger logic
-                            if keyword in self.config["trigger_words"] and self.last_prediction not in self.config["trigger_words"]:
-                                self.artnet_channel.add_fade([1], 0)
-                                await self.artnet_channel
-                                await asyncio.sleep(0.1)  # Short delay for the remote device to recognize '1'
-                                self.artnet_channel.add_fade([0], 0)
-                                await self.artnet_channel
+                        # Art-Net trigger logic
+                        if (
+                            keyword in self.config["trigger_words"]
+                            and self.last_prediction not in self.config["trigger_words"]
+                        ):
+                            self.artnet_channel.add_fade([1], 0)
+                            await self.artnet_channel
+                            await asyncio.sleep(
+                                0.1
+                            )  # Short delay for the remote device to recognize '1'
+                            self.artnet_channel.add_fade([0], 0)
+                            await self.artnet_channel
+                            self.last_prediction = keyword
+                        else:
+                            self.artnet_channel.add_fade([0], 0)
+                            await self.artnet_channel
+                            if keyword not in self.config["trigger_words"]:
                                 self.last_prediction = keyword
-                            else:
-                                self.artnet_channel.add_fade([0], 0)
-                                await self.artnet_channel
-                                if keyword not in self.config["trigger_words"]:
-                                    self.last_prediction = keyword
 
-                            # Shift the buffer by 'hop_length' and read the next chunk
-                            next_chunk, _ = stream.read(hop_length)
-                            buffer = np.roll(buffer, -hop_length)
-                            buffer[-hop_length:] = next_chunk.flatten()
+                        # Shift the buffer by 'hop_length' and read the next chunk
+                        next_chunk, _ = stream.read(hop_length)
+                        buffer = np.roll(buffer, -hop_length)
+                        buffer[-hop_length:] = next_chunk.flatten()
 
-                    except Exception as e:
-                        print(f"Error while recording: {e}")
-                        break
+                except Exception as e:
+                    print(f"Error while recording: {e}")
+                    break
 
     def idx2label(self, idx, encoder):
         idx_reshaped = np.array(idx).reshape(1, -1)

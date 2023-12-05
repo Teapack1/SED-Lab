@@ -13,8 +13,8 @@ class AudioProcessor:
         n_fft=2048,
         hop_length=512,
         audio_chunk=0.5,
-        slice_audio = False,
-        data_range = 1.0
+        slice_audio=False,
+        data_range=1.0,
     ):
         self.sample_rate = sample_rate
         self.n_mels = n_mels
@@ -60,10 +60,10 @@ class AudioProcessor:
         spectrogram = (spectrogram - spectrogram.min()) / (
             spectrogram.max() - spectrogram.min()
         )
-        
+
         # Scale the data range
         spectrogram *= self.data_range
-        
+
         return spectrogram.T
 
     def read_file_properties(self, filename):
