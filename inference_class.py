@@ -3,7 +3,6 @@ import sounddevice as sd
 from keras.models import load_model
 from joblib import load
 from classify_utilities import AudioProcessor
-import time
 from pyartnet import ArtNetNode
 import asyncio
 
@@ -89,7 +88,7 @@ class SoundClassificationService:
                                 f"Predicted Keyword: {keyword}, with: {prediction * 100}"
                             )
 
-                        # Art-Net trigger logic
+                        # Artnet trigger logic
                         if (
                             keyword in self.config["trigger_words"]
                             and self.last_prediction not in self.config["trigger_words"]
