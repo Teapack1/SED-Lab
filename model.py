@@ -11,7 +11,7 @@ from tensorflow.keras.layers import (
     BatchNormalization,
 )
 from tensorflow.keras.models import Model, Sequential
-from tensorflow.keras.applications import MobileNetV3Large, MobileNetV3Large
+from tensorflow.keras.applications import MobileNetV3Large, MobileNetV3Small
 from tensorflow.keras.applications.efficientnet_v2 import EfficientNetV2S
 from tensorflow.keras.applications.densenet import DenseNet121
 from tensorflow.keras.applications.convnext import ConvNeXtBase, ConvNeXtTiny
@@ -72,13 +72,27 @@ class Deep_NN:
 
         return model
 
-    def mobilenetv3_nn(self):
+    def mobilenetv3_nn(self, type="small"):
         input_shape = (
             self.dim1,
             self.dim2,
             self.dim3,
         )  # Make sure this shape includes the channels dimension
-        base_model = MobileNetV3Large(
+        if type == "large":
+            base_model = MobileNetV3Large(
+                weights=None,  # No pre-trained weights
+                include_top=True,  # Include the top (classification) layer
+                input_shape=input_shape,
+                classes=self.num_classes,  # Specify the number of classes
+            )
+        elif type == "small":
+            base_model = MobileNetV3Small(
+                weights=None,  # No pre-trained weights
+                include_top=True,  # Include the top (classification) layer
+                input_shape=input_shape,
+                classes=self.num_classes,  # Specify the number of classes
+            )
+        base_model = MobileNetV3Small(
             weights=None,  # No pre-trained weights
             include_top=True,  # Include the top (classification) layer
             input_shape=input_shape,
