@@ -1,5 +1,5 @@
 # Audio Classify 2
-Audio-classification task with CNNs and Tensorflow 2 framework. Training notebook with exploratory data analysis and features extraction and model class to test several model architectures. Automatic testing on whole new data. Real-time inference using audio device, sends triggers to specified Artnet universe.
+Audio-classification ML platform built on Tensorflow 2. Training notebook, exploratory data analysis, features extraction, model class with several model architectures. Automatic testing on new imported data batches. Real-time inference using input microphone audio device, trigger commands - like send a specified Artnet command. Use wtih my ADRAT dataset creator. Use ADRAT method B recording for easy dataset creation, compatible with this platform.
 ## Key Features
 - Real-time audio classification.
 - Customizable model settings for different use cases.
