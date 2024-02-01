@@ -1,11 +1,13 @@
 import numpy as np
 import sounddevice as sd
-from keras.models import load_model
 from joblib import load
 from classify_utilities import AudioProcessor
 from pyartnet import ArtNetNode
 import asyncio
 
+import tflite_runtime.interpreter as tflite
+#import tensorflow.lite as tflite
+#import tensorflow as tf
 
 class SoundClassificationService:
     _instance = None
@@ -29,7 +31,12 @@ class SoundClassificationService:
         self.last_prediction = None
 
         try:
-            self.model = load_model(config["model_path"])
+            #model = tf.keras.load_model(config["model_path"])
+            self.interpreter = tflite.Interpreter(model_path=config["model_path"])
+            self.interpreter.allocate_tensors()
+            # Get input and output tensors
+            self.input_details = self.interpreter.get_input_details()
+            self.output_details = self.interpreter.get_output_details()
             self.labels_encoder = load(config["labels_path"])
         except Exception as e:
             print(f"Error loading files: {e}")
@@ -81,7 +88,14 @@ class SoundClassificationService:
                             self.config["num_mels"],
                             self.config["num_channels"],
                         )
-                        prediction = self.model.predict(reshaped_feature)
+
+                        #prediction = model.predict(reshaped_feature)
+                        self.interpreter.set_tensor(self.input_details[0]["index"], reshaped_feature)
+                        self.interpreter.invoke()
+                        prediction = self.interpreter.get_tensor(
+                            self.output_details[0]["index"]
+                        )
+
                         keyword = self.idx2label(prediction, self.labels_encoder)
                         if keyword:
                             print(
