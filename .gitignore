@@ -4,3 +4,7 @@
 /DATASET
 /TEST
 /__pycache__
+/venv
+/PLOTS
+/TEST_DATA
+/*.csv

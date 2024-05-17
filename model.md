@@ -28,7 +28,5 @@
    - Model Type: EfficientNetV2S
    - Number of Parameters: 21,549,212
 
-8. **dense_nn**
-   - Model Type: DenseNet121
-   - Number of Parameters: 7,978,856
-
+9. **SmallerVGGNet**
+   - Model Type: Original PCL soundDetection (Clinging) system neural net.

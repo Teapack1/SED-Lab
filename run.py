@@ -15,7 +15,7 @@ NUM_CHANNELS = 1
 SAMPLE_RATE = 48000
 
 # Extracting features
-DATA_RANGE = 1  # 1 or 255
+DATA_RANGE = 255  # 1 or 255
 MEL_FRAMES = 35
 N_MELS = 256
 NFFT = 2048
