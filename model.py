@@ -1,4 +1,5 @@
 import tensorflow as tf
+
 from tensorflow.keras.layers import (
     Input,
     Dense,
@@ -24,7 +25,9 @@ class Deep_NN:
         self.dim3 = dim3
         self.num_classes = num_classes
 
-    def defaultCNN(self):
+        print(f"dim1: {dim1}, dim2: {dim2}, dim3: {dim3}, num_classes: {num_classes}")
+
+    def defaultCNN(self, type="base"):
         input_shape = (self.dim1, self.dim2, self.dim3)
 
         model = Sequential()
@@ -36,7 +39,7 @@ class Deep_NN:
 
         return model
 
-    def customCNN1(self):
+    def customCNN1(self, type="base"):
         input_shape = (self.dim1, self.dim2, self.dim3)
 
         model = Sequential(
@@ -107,7 +110,7 @@ class Deep_NN:
 
         return model
 
-    def effnetv2_nn(self):
+    def effnetv2_nn(self, type="base"):
         input_shape = (
             self.dim1,
             self.dim2,
@@ -128,11 +131,11 @@ class Deep_NN:
 
         return model
 
-    def dense_nn(self):
+    def dense_nn(self, type="base"):
         input_shape = (
-            self.dim3,
             self.dim1,
             self.dim2,
+            self.dim3,
         )  # Make sure this shape includes the channels dimension
         base_model = DenseNet121(
             weights=None,  # No pre-trained weights

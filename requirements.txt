@@ -1,0 +1,12 @@
+tensorflow-gpu<2.11
+matplotlib==3.7.*
+librosa
+scikit-learn
+pandas
+numpy
+ipykernel
+seaborn
+pyartnet
+sounddevice
+soundfile
+pydub

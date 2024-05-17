@@ -12,14 +12,14 @@ LABELER_PATH = os.path.join("model", "label_encoder.joblib")
 AUDIO_CHUNK = 0.4  # seconds
 LISTENING_HOP_LENGTH = 0.4  # seconds
 NUM_CHANNELS = 1
-SAMPLE_RATE = 44100
+SAMPLE_RATE = 48000
 
 # Extracting features
 DATA_RANGE = 1  # 1 or 255
 MEL_FRAMES = 35
 N_MELS = 256
 NFFT = 2048
-FMAX = 44100 // 2
+FMAX = SAMPLE_RATE // 2
 HOP_LENGTH = 512
 
 # Artnet config
@@ -128,14 +128,13 @@ async def main_async():
         "labels_path": args.labeler_path,
         "sample_rate": args.sample_rate,
         "num_channels": args.num_channels,
-        "audio_chuk": args.audio_chunk,
+        "audio_chunk": args.audio_chunk,
         "mel_frames": args.mel_frames,
         "num_mels": args.num_mels,
         "n_fft": args.n_fft,
         "fmax": args.fmax,
         "hop_length": args.hop_length,
         "confidence_threshold": args.confidence_threshold,
-        "listening_hop_length": args.listening_hop_length,
         "device": "cpu",
         "trigger_words": args.trigger_words,
         "artnet_channel": args.artnet_channel,
@@ -146,9 +145,7 @@ async def main_async():
 
     service = SoundClassificationService.get_instance(config)
     await service.async_init()
-    await service.listen_and_predict(
-        duration=args.audio_chunk, overlap=args.listening_hop_length
-    )
+    await service.listen_and_predict()
 
 
 def main():
