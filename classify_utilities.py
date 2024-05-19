@@ -2,11 +2,13 @@ import struct
 import librosa
 import numpy as np
 import pandas as pd
+from features import Audio_Features
 
 
 class AudioProcessor:
     def __init__(
         self,
+        features: Audio_Features,
         sample_rate=22050,
         n_mels=128,
         fmax=11000,
@@ -15,6 +17,7 @@ class AudioProcessor:
         audio_chunk=0.5,
         slice_audio=False,
         data_range=255,
+        main_feature="mel",
     ):
         self.sample_rate = sample_rate
         self.n_mels = n_mels
@@ -24,9 +27,10 @@ class AudioProcessor:
         self.audio_chunk = audio_chunk
         self.slice_audio = slice_audio
         self.data_range = data_range
+        self.features = features
+        self.main_feature = main_feature
 
-    def __call__(self, data, data_range):
-        self.data_range = data_range
+    def __call__(self, data):
         return self.feature_extractor(data)
 
     def feature_extractor(self, data):
@@ -41,33 +45,16 @@ class AudioProcessor:
                 )
             data = librosa_audio_sliced
 
-        spectrogram = librosa.feature.melspectrogram(
-            y=data,
-            sr=self.sample_rate,
-            n_mels=self.n_mels,
-            fmax=self.fmax,
-            n_fft=self.n_fft,
-            hop_length=self.hop_length,
-        )
-        spectrogram = librosa.power_to_db(spectrogram, ref=np.max)
+        if self.main_feature == "mel":
+            spectrogram = self.features.extract_mel_spectrogram(y=data)
+        elif self.main_feature == "mfcc":
+            spectrogram = self.features.extract_mfcc(y=data)
+        elif self.main_feature == "stft":
+            spectrogram = self.features.extract_spectrogram(y=data)
+        else:
+            raise ValueError("Invalid feature type")
 
-        # general scale normalization with min-max:
-        # min_db, max_db = -60, 80
-        # spectrogram = np.clip((spectrogram - min_db) / (max_db - min_db), 0, 1)
-        # spectrogram *= 255
-
-        # Min-Max normalization
-        spectrogram = (spectrogram - spectrogram.min()) / (
-            spectrogram.max() - spectrogram.min()
-        )
-
-        # Scale the data range
-        if self.data_range == 255:
-            spectrogram *= 255
-        elif self.data_range == 1.0:
-            spectrogram = (spectrogram * 2) - 1  # Scale to [-1, 1]
-            
-        return spectrogram.T
+        return spectrogram
 
     def read_file_properties(self, filename):
         wave_file = open(filename, "rb")

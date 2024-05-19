@@ -6,9 +6,9 @@ from pyartnet import ArtNetNode
 import asyncio
 
 # import tflite_runtime.interpreter as tflite
-import tensorflow.lite as tflite
+# import tensorflow.lite as tflite
 
-# import tensorflow as tf
+import tensorflow as tf
 
 
 class SoundClassificationService:
@@ -22,23 +22,29 @@ class SoundClassificationService:
         print(self.microphone_index)
         self.audio_processor = AudioProcessor(
             sample_rate=config["sample_rate"],
-            n_mels=config["num_mels"],
+            n_mels=config["n_frames"],
             fmax=config["fmax"],
             n_fft=config["n_fft"],
             hop_length=config["hop_length"],
             data_range=config["data_range"],
+            main_feature=config["main_feature"],
         )
 
         self.artnet_node = None
         self.last_prediction = None
+        self.input_shape = config["input_shape"]
 
         try:
-            # model = tf.keras.load_model(config["model_path"])
+            self.model = tf.keras.load_model(config["model_path"])
+
+            """
             self.interpreter = tflite.Interpreter(model_path=config["model_path"])
             self.interpreter.allocate_tensors()
             # Get input and output tensors
             self.input_details = self.interpreter.get_input_details()
             self.output_details = self.interpreter.get_output_details()
+            """
+
             self.labels_encoder = load(config["labels_path"])
         except Exception as e:
             print(f"Error loading files: {e}")
@@ -60,11 +66,11 @@ class SoundClassificationService:
             cls._instance = cls(config)
         return cls._instance
 
-    async def listen_and_predict(self, duration=1.0, overlap=0.5):
+    async def listen_and_predict(self):
         """Listen to live audio and make predictions."""
         sample_rate = self.config["sample_rate"]
-        buffer_length = int(sample_rate * duration)
-        hop_length = int(sample_rate * overlap)
+        buffer_length = int(sample_rate * self.config["audio_chunk"])
+        hop_length = int(sample_rate * self.config["overlap"])
         buffer = np.zeros(buffer_length)
 
         with sd.InputStream(
@@ -81,17 +87,17 @@ class SoundClassificationService:
 
                     while True:
                         # Process the buffer
-                        prediction_feature = self.audio_processor(
-                            data=buffer, data_range=self.config["data_range"]
-                        )
+                        prediction_feature = self.audio_processor(data=buffer)
                         reshaped_feature = prediction_feature.reshape(
-                            1,
-                            self.config["mel_frames"],
-                            self.config["num_mels"],
-                            self.config["num_channels"],
+                            1,  # batch size
+                            self.config["input_shape"][0],  # Frames
+                            self.config["input_shape"][1],  # freq bands
+                            self.config["input_shape"][2],  # channels
                         )
 
-                        # prediction = model.predict(reshaped_feature)
+                        prediction = self.model.predict(reshaped_feature)
+
+                        """
                         self.interpreter.set_tensor(
                             self.input_details[0]["index"], reshaped_feature
                         )
@@ -99,6 +105,7 @@ class SoundClassificationService:
                         prediction = self.interpreter.get_tensor(
                             self.output_details[0]["index"]
                         )
+                        """
 
                         keyword = self.idx2label(prediction, self.labels_encoder)
                         if keyword:
