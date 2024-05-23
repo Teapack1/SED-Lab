@@ -1,6 +1,12 @@
 import librosa
 import numpy as np
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.preprocessing import (
+    StandardScaler,
+    MinMaxScaler,
+    MaxAbsScaler,
+    RobustScaler,
+)
+import joblib
 
 
 class Audio_Features:
@@ -13,7 +19,7 @@ class Audio_Features:
         n_fft=1024,
         hop_length=512,
         data_range=1,
-        use_standard_scaler=False,
+        scaler_type="standard",  # 'minmax', 'maxabs', 'robust', or None
         use_delta=False,
     ):
         self.sample_rate = sample_rate
@@ -23,17 +29,29 @@ class Audio_Features:
         self.n_fft = n_fft
         self.hop_length = hop_length
         self.data_range = data_range
-        self.use_standard_scaler = use_standard_scaler
         self.use_delta = use_delta
         self.audio_length = int(sample_rate * duration)
-        self.scaler = StandardScaler() if use_standard_scaler else None
+
+        if scaler_type == "standard":
+            self.scaler = StandardScaler()
+        elif scaler_type == "minmax":
+            self.scaler = MinMaxScaler()
+        elif scaler_type == "maxabs":
+            self.scaler = MaxAbsScaler()
+        elif scaler_type == "robust":
+            self.scaler = RobustScaler()
+        else:
+            self.scaler = None
+
+    def fit_scaler(self, features):
+        # Flatten features to fit the scaler on the entire dataset
+        features = np.vstack(features)
+        if self.scaler:
+            self.scaler.fit(features)
 
     def post_process(self, feature):
-        if self.use_standard_scaler:
-            original_shape = feature.shape
-            feature = feature.reshape(-1, 1)
-            feature = self.scaler.fit_transform(feature)
-            feature = feature.reshape(original_shape)
+        if self.scaler:
+            feature = self.scaler.transform(feature)
 
         feature = (feature - feature.min()) / (feature.max() - feature.min())
 
