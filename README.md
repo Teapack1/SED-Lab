@@ -52,40 +52,29 @@ Tested on Linux and Windows os.
 ## Installation
 <b>Windows 10/11</b> setup:
 1) Download and install Python 3.10.11:
-<br>
-https://www.python.org/downloads/release/python-31011/
-<br>
-`"add python.exe to PATH"` during installation.
-<br>
-Restart Windows
+<br>https://www.python.org/downloads/release/python-31011/
+<br>`"add python.exe to PATH"` during installation.
+<br>Restart Windows
 
 2) Clone (download) the project:
-<br>
-Open terminal and clone it or just download from Github.
-<br>
-`git clone https://github.com/Teapack1/SED-Lab.git`
+<br>Open terminal and clone it or just download from Github.
+<br>`git clone https://github.com/Teapack1/SED-Lab.git`
 
 3) cd (go) to the project directory run code:
-<br>
-`cd SED-Lab`
+<br>`cd SED-Lab`
 
 4) Create Virtual environment:
-<br>
-Open terminal in the project folder.
-<br>
-`python -m venv venv`
+<br>Open terminal in the project folder.
+<br>`python -m venv venv`
 
 5) Activate virtual env.
-<br>
-`venv\Scripts\activate`
+<br>`venv\Scripts\activate`
 
 6) Update pip:
-<br>
-`python -m pip install --upgrade pip`
+<br>`python -m pip install --upgrade pip`
 
 7) Install dependencies:
-<br>
-`pip install -r requirements.txt`
+<br>`pip install -r requirements.txt`
 
 ## How to use?
 This is all-in-one SED (Sound Event Detection) tasks repo. It's meant to be adapted and optimized for specific SED task. Experiment to find the best configuration for your task.
@@ -174,7 +163,7 @@ For running the inference script, several parameters are required. Most of these
 - **`-mic, --mic_device:`** Microphone device index. (default: 0)
 
 ### Parameters for Manual Setup (if config.json is not used):
-If the `config.json` file is not available, the following parameters need to be set manually:
+If the `config.json` file is not available, the following parameters need to be set manually. This is unreliable method and is not recommended.
 
 - **`--model_path:`** Path to the trained model file.
 - **`--labeler_path:`** Path to the labeler file.
