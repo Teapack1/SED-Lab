@@ -1,10 +1,5 @@
 /venv
 /MODEL
 /DATA
-/DATASET
-/TEST
+/config
 /__pycache__
-/venv
-/PLOTS
-/TEST_DATA
-/*.csv
