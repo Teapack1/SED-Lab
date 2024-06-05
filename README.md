@@ -35,8 +35,7 @@ SED-Lab is universal Sound Event Detection (SED) package designed for learning a
 
 
 ## Why Use?
-- **Easy to use:** Place dataset, set up initial parameters. run training -> wait -> run inference command.
-- **Educational:** The training process runs in a Jupyter notebook with detailed descriptions. Learn about audio ML, experiment with STFT, MFCCs, different normalization techniques, augmentations, and model architectures.
+- **Educational:** The training process runs in a Jupyter notebook with detailed descriptions in every step. Learn about audio ML, experiment with different audio features, normalization techniques, augmentations, and model architectures.
 - **Easy deploy:** After training, a config file is generated that includes all settings from the training phase, simplifying the deployment of various models.
 - **Real-time inference:** The inference script runs on real-time audio recordings and can send trigger commands via the Artnet bus.
 - **Edge support:** TF-Lite models and an inference script for mobile and edge computing are available.
