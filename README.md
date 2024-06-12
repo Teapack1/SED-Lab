@@ -63,7 +63,6 @@ Tested on Linux and Windows os.
 <br>`cd SED-Lab`
 
 4) Create Virtual environment:
-<br>Open terminal in the project folder.
 <br>`python -m venv venv`
 
 5) Activate virtual env.
@@ -90,9 +89,9 @@ Open notebook located in the notebooks directory `training_notebook.ipynb`.
 <br>In the training notebook press "run all", wait until it finishes.
 <br>You get `MODEL`, `ENCODER`, `SCALER`, `CONFIG` and various plots from training and evaluation.
 - MODEL: Trained tf/tflite model of [custom or preset architecture](src/model/model.md).
-- ENCODER: One-hot label encoder saved as joblib.
+- ENCODER: One-hot encoder for the labels saved as joblib.
 - SCALER: Selected scaler fitted on the training dataset saved as joblib.
-- CONFIG: Parameters from the training are saved as json to be used in the inference script.
+- CONFIG: Training configuration saved as json to be used in the inference script.
 - PLOTS: In plots directory `MODEL/PLOTS` are saved training plots and evaluation conusion matrix.
 
 ### Inference
