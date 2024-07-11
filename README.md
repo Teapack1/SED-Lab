@@ -80,6 +80,7 @@ This is all-in-one SED (Sound Event Detection) tasks repo. It's meant to be adap
 ### Prepare
 Prepare your local workspace, run: `python src/utils/prep.py`
 <br>Place your dataset data in `DATA/DATASET` directory. Audio samples are in <b>.wav</b> format and <b>every subdirectory in DATASET directory is an unique label</b>.
+<br>Folders with "-" at the beginngin are considered "neg" label - negative samples (i.e. -noises, -cuttlery). Folders with "_" are considered the same label as folder without it (i.e. "horn", "_horn").
 <br>If needed, use [Audio-Dataset-Recorder-Tools](https://github.com/Teapack1/Audio-Dataset-Recorder-Tools) for new recordings.
 
 ### Training
